@@ -1,9 +1,40 @@
 <!DOCTYPE html>
-<html>
- <head>
-   <title>How good is your forecast?</title>
- </head>
- <body>
-   <h1>ForeCastor</h1>
- </body>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How good is your forecast?</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <img src="/static/eyeon_notext_270x270.png" alt="EyeOn" class="logo">
+            <h1>How good is your forecast?</h1>
+        </header>
+
+        <p>Welcome blablabla.</p>
+
+        <div class="feature">
+            <i class="fas fa-chart-line"></i>
+            <span>txt1</span>
+        </div>
+        <div class="feature">
+            <i class="fas fa-bolt"></i>
+            <span>txt2</span>
+        </div>
+        <div class="feature">
+            <i class="fas fa-lock"></i>
+            <span>txt3</span>
+        </div>
+
+        <div class="upload-section">
+            <h2>Upload Your CSV File</h2>
+            <p>Upload your CSV file containing the forecast.</p>
+            <input type="file" id="csv-file" class="file-input" accept=".csv">
+            <label for="csv-file" class="file-label">Choose File</label>
+        </div>
+    </div>
+</body>
 </html>
