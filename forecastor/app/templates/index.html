@@ -10,7 +10,7 @@
 <body>
     <div class="container">
         <header>
-            <img src="/static/eyeon_notext_270x270.png" alt="EyeOn" class="logo">
+            <img src="/static/eyeonlogo0_notext.png" alt="EyeOnEye" class="logo">
             <h1>How good is your forecast?</h1>
         </header>
 
@@ -24,16 +24,14 @@
             <i class="fas fa-bolt"></i>
             <span>txt2</span>
         </div>
-        <div class="feature">
-            <i class="fas fa-lock"></i>
-            <span>txt3</span>
-        </div>
-
         <div class="upload-section">
             <h2>Upload Your CSV File</h2>
             <p>Upload your CSV file containing the forecast.</p>
-            <input type="file" id="csv-file" class="file-input" accept=".csv">
-            <label for="csv-file" class="file-label">Choose File</label>
+            <form id="upload-form" method="post" action="/uploadfile/" enctype="multipart/form-data">
+                <input type="file" id="csv-file" name="file" class="file-input" accept=".csv" required>
+                <label for="csv-file" class="file-label">Choose File</label>
+                <button type="submit" class="upload-button">Upload</button>
+            </form>
         </div>
     </div>
 </body>
