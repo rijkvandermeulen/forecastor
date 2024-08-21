@@ -13,3 +13,11 @@ class SalesAndForecastData(Base):
     sales = Column(Float)
     statistical_forecast = Column(Float)
     final_forecast = Column(Float)
+
+
+class Parameters(Base):
+    __tablename__ = "parameters"
+
+    id = Column(Integer, primary_key=True, index=True)
+    session_id = Column(String, index=True)
+    time_lag = Column(Integer)

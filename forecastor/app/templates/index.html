@@ -25,9 +25,18 @@
             <span>txt2</span>
         </div>
         <div class="upload-section">
-            <h2>Upload Your CSV File</h2>
-            <p>Upload your CSV file containing the forecast.</p>
+            <h2>Get started!</h2>
+            <p>Upload a CSV file containing your sales data and forecast.</p>
             <form id="upload-form" method="post" action="/uploadfile/" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="time-lag" class="time-lag-label">
+                        Time lag (in months):
+                        <span class="info-icon" title="Time lag in demand forecasting refers to the delay between the period for which a forecast is made and the actual data used to generate that forecast. E.g., a time lag of 3 months means the forecast for September 2023 is based on actual sales data available only up to June 2023.">
+                            &#9432;
+                        </span>
+                    </label>
+                    <input type="number" id="time-lag" name="time_lag" class="time-lag-input" min="0" value="3" required>
+                </div>
                 <input type="file" id="csv-file" name="file" class="file-input" accept=".csv" required>
                 <label for="csv-file" class="file-label">
                     <i class="fas fa-file-upload"></i> <span id="file-text">Choose File</span>

@@ -1,6 +1,6 @@
 import uuid
 
-from fastapi import APIRouter, Depends, File, UploadFile, HTTPException
+from fastapi import APIRouter, Depends, File, UploadFile, HTTPException, Form
 from sqlalchemy.orm import Session
 import pandas as pd
 import io
@@ -10,11 +10,13 @@ from database.models import SalesAndForecastData
 
 from routers.utils import check_delimiter
 
+from database.models import Parameters
+
 router = APIRouter()
 
 
 @router.post("/uploadfile/")
-async def create_upload_file(file: UploadFile = File(...), db: Session = Depends(get_db)):
+async def submit_input_data(time_lag: int = Form(...), file: UploadFile = File(...), db: Session = Depends(get_db)):
     if not file.filename.endswith('.csv'):
         raise HTTPException(400, detail="Invalid file format. Please upload a CSV file.")
 
@@ -37,6 +39,9 @@ async def create_upload_file(file: UploadFile = File(...), db: Session = Depends
     for record in records:
         record['session_id'] = session_id
     db.bulk_insert_mappings(SalesAndForecastData, records)
+    db.commit()
+
+    db.add(Parameters(session_id=session_id, time_lag=time_lag))
     db.commit()
 
     return {"filename": file.filename, "status": "Data processed successfully"}
