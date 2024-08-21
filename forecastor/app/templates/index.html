@@ -29,10 +29,33 @@
             <p>Upload your CSV file containing the forecast.</p>
             <form id="upload-form" method="post" action="/uploadfile/" enctype="multipart/form-data">
                 <input type="file" id="csv-file" name="file" class="file-input" accept=".csv" required>
-                <label for="csv-file" class="file-label">Choose File</label>
-                <button type="submit" class="upload-button">Upload</button>
+                <label for="csv-file" class="file-label">
+                    <i class="fas fa-file-upload"></i> <span id="file-text">Choose File</span>
+                </label>
+                <button type="submit" id="upload-button" class="upload-button" style="display: none;">Upload</button>
             </form>
         </div>
     </div>
 </body>
 </html>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const fileInput = document.getElementById('csv-file');
+    const fileLabel = document.querySelector('.file-label');
+    const fileText = document.getElementById('file-text');
+    const uploadButton = document.getElementById('upload-button');
+
+    fileInput.addEventListener('change', function(e) {
+        if (fileInput.files.length > 0) {
+            fileText.textContent = fileInput.files[0].name;
+            fileLabel.classList.add('file-chosen');
+            uploadButton.style.display = 'inline-block';
+        } else {
+            fileText.textContent = 'Choose File';
+            fileLabel.classList.remove('file-chosen');
+            uploadButton.style.display = 'none';
+        }
+    });
+});
+</script>
