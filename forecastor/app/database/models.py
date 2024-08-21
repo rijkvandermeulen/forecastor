@@ -13,6 +13,10 @@ class SalesAndForecastData(Base):
     sales = Column(Float)
     statistical_forecast = Column(Float)
     final_forecast = Column(Float)
+    benchmark_forecast = Column(Float)
+    absolute_error_stat_fcst = Column(Float)
+    absolute_error_fin_fcst = Column(Float)
+    absolute_error_bm_fcst = Column(Float)
 
 
 class Parameters(Base):

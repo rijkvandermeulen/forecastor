@@ -1,6 +1,8 @@
 import csv
 import io
 
+import pandas as pd
+
 
 def check_delimiter(file_object: io.StringIO):
 
@@ -16,3 +18,18 @@ def check_delimiter(file_object: io.StringIO):
         return dialect.delimiter
     except csv.Error:
         raise ValueError("Could not detect the delimiter.")
+
+
+def moving_average_benchmark(df: pd.DataFrame, time_lag: int, window: int = 3):
+    """
+    Calculate the moving average benchmark forecast for each demand_forecasting_unit.
+    """
+    df["benchmark_forecast"] = (
+        df
+        .groupby(["demand_forecasting_unit", "session_id"])["sales"]
+        .rolling(window=window).mean()
+        .shift(time_lag)
+        .reset_index(level=["demand_forecasting_unit", "session_id"], drop=True)
+    )
+
+    return df

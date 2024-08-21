@@ -1,6 +1,7 @@
 import uuid
 
 from fastapi import APIRouter, Depends, File, UploadFile, HTTPException, Form
+from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 import pandas as pd
 import io
@@ -8,15 +9,16 @@ import io
 from database.database import get_db
 from database.models import SalesAndForecastData
 
-from routers.utils import check_delimiter
+from routers.utils import check_delimiter, moving_average_benchmark
 
 from database.models import Parameters
+
 
 router = APIRouter()
 
 
 @router.post("/uploadfile/")
-async def submit_input_data(time_lag: int = Form(...), file: UploadFile = File(...), db: Session = Depends(get_db)):
+async def process_input_data(time_lag: int = Form(...), file: UploadFile = File(...), db: Session = Depends(get_db)):
     if not file.filename.endswith('.csv'):
         raise HTTPException(400, detail="Invalid file format. Please upload a CSV file.")
 
@@ -32,16 +34,22 @@ async def submit_input_data(time_lag: int = Form(...), file: UploadFile = File(.
 
     df = pd.read_csv(file_object, delimiter=delimiter)
     df["date"] = pd.to_datetime(df["date"], format='%Y-%m-%d')
+    session_id = str(uuid.uuid4())
+    df["session_id"] = session_id
+
+    # Generate benchmark forecast
+    df = moving_average_benchmark(df, time_lag)
+
+    # Calculate the absolute errors
+    df["absolute_error_stat_fcst"] = abs(df["sales"] - df["statistical_forecast"])
+    df["absolute_error_fin_fcst"] = abs(df["sales"] - df["final_forecast"])
+    df["absolute_error_bm_fcst"] = abs(df["sales"] - df["benchmark_forecast"])
 
     # Update the database
     records = df.to_dict(orient='records')
-    session_id = str(uuid.uuid4())
-    for record in records:
-        record['session_id'] = session_id
     db.bulk_insert_mappings(SalesAndForecastData, records)
     db.commit()
-
     db.add(Parameters(session_id=session_id, time_lag=time_lag))
     db.commit()
 
-    return {"filename": file.filename, "status": "Data processed successfully"}
+    return RedirectResponse(url="/results_summary", status_code=303)
