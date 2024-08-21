@@ -1,3 +1,5 @@
+import uuid
+
 from fastapi import APIRouter, Depends, File, UploadFile, HTTPException
 from sqlalchemy.orm import Session
 import pandas as pd
@@ -5,6 +7,8 @@ import io
 
 from database.database import get_db
 from database.models import SalesAndForecastData
+
+from routers.utils import check_delimiter
 
 router = APIRouter()
 
@@ -15,18 +19,24 @@ async def create_upload_file(file: UploadFile = File(...), db: Session = Depends
         raise HTTPException(400, detail="Invalid file format. Please upload a CSV file.")
 
     contents = await file.read()
-    df = pd.read_csv(io.StringIO(contents.decode('utf-8')))
+    file_object = io.StringIO(contents.decode('utf-8'))
 
-    print(df.head())
-    for _, row in df.iterrows():
-        print(row)
-        db_record = SalesAndForecastData(
-            demand_forecasting_unit=row['demand_forecasting_unit'],
-            sales=row['sales'],
-            statistical_forecast=row['statistical_forecast'],
-            final_forecast=row['final_forecast']
-        )
-        db.add(db_record)
+    try:
+        delimiter = check_delimiter(file_object)
+    except ValueError as e:
+        raise HTTPException(400, detail=str(e))
+
+    assert delimiter is not None
+
+    df = pd.read_csv(file_object, delimiter=delimiter)
+    df["date"] = pd.to_datetime(df["date"], format='%Y-%m-%d')
+
+    # Update the database
+    records = df.to_dict(orient='records')
+    session_id = str(uuid.uuid4())
+    for record in records:
+        record['session_id'] = session_id
+    db.bulk_insert_mappings(SalesAndForecastData, records)
     db.commit()
 
     return {"filename": file.filename, "status": "Data processed successfully"}

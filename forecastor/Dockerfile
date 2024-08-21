@@ -1,5 +1,13 @@
 FROM python:3.9-buster
 
+# Update the package list
+RUN apt-get update \
+    # Install SQLite3
+    && apt-get install -y \
+       sqlite3 \
+    # Clean up the apt cache to reduce image size
+    && rm -rf /var/lib/apt/lists/*
+
 COPY requirements.txt /tmp
 RUN pip install -r /tmp/requirements.txt
 

@@ -69,6 +69,17 @@ p {
     font-size: 1.1rem;
 }
 
+.upload-button {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    background-color: #3C9BD9;
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    font-size: 1.1rem;
+}
+
 .file-label:hover {
     background-color: #3288c1;
 }
