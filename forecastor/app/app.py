@@ -1,4 +1,5 @@
-from fastapi import FastAPI, Request, Depends
+import pandas as pd
+from fastapi import FastAPI, Request, Depends, Query
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
@@ -24,8 +25,33 @@ async def read_root(request: Request):
 
 
 @app.get("/results_summary", response_class=HTMLResponse)
-async def get_high_level_summary_results(request: Request, db: Session = Depends(get_db)):
+async def get_high_level_summary_results(
+        request: Request,
+        session_id: str = Query(...),
+        db: Session = Depends(get_db)
+):
 
-    data = db.query(models.SalesAndForecastData).all()
+    res = db.query(models.SalesAndForecastData).filter(models.SalesAndForecastData.session_id == session_id).all()
+    df = pd.DataFrame([record.__dict__ for record in res])
 
-    return templates.TemplateResponse("results_summary.html", {"request": request, "data": data})
+    # Calculate forecast accuracy of the various forecast versions
+    mae_perc_stat_fcst = min(1, (df["absolute_error_stat_fcst"].sum() / df["sales"].sum()))
+    fa_stat_fcst = 1 - mae_perc_stat_fcst
+    mae_perc_fin_fcst = min(1, (df["absolute_error_fin_fcst"].sum() / df["sales"].sum()))
+    fa_fin_fcst = 1 - mae_perc_fin_fcst
+    mae_perc_bm_fcst = min(1, (df["absolute_error_bm_fcst"].sum() / df["sales"].sum()))
+    fa_bm_fcst = 1 - mae_perc_bm_fcst
+
+    # Deltas
+    fva_fin_stat = fa_fin_fcst - fa_stat_fcst
+    fva_bm_stat = fa_stat_fcst - fa_bm_fcst
+
+    kpis = {
+        "fa_stat_fcst": fa_stat_fcst,
+        "fa_fin_fcst": fa_fin_fcst,
+        "fa_bm_fcst": fa_bm_fcst,
+        "fva_fin_stat": fva_fin_stat,
+        "fva_bm_stat": fva_bm_stat
+    }
+
+    return templates.TemplateResponse("results_summary.html", {"request": request, "kpis": kpis})

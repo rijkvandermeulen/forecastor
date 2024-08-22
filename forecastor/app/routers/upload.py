@@ -52,4 +52,4 @@ async def process_input_data(time_lag: int = Form(...), file: UploadFile = File(
     db.add(Parameters(session_id=session_id, time_lag=time_lag))
     db.commit()
 
-    return RedirectResponse(url="/results_summary", status_code=303)
+    return RedirectResponse(url=f"/results_summary?session_id={session_id}", status_code=303)
