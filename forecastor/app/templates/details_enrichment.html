@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales and Forecast Dashboard</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://kit.fontawesome.com/your-fontawesome-kit.js" crossorigin="anonymous"></script>
+</head>
+<body>
+    <div class="container">
+        <h1 class="page-title">Sales and Forecast Dashboard</h1>
+
+        <div class="kpi-container">
+            <div class="kpi-box">
+                <div class="kpi-value">85.5%</div>
+                <div class="kpi-label">Forecast Accuracy (Baseline)</div>
+            </div>
+            <div class="kpi-box">
+                <div class="kpi-value">92.3%</div>
+                <div class="kpi-label">Forecast Accuracy (Enriched)</div>
+            </div>
+            <div class="kpi-box">
+                <div class="kpi-value positive">+6.8% <i class="fas fa-arrow-up"></i></div>
+                <div class="kpi-label">Improvement</div>
+            </div>
+        </div>
+
+        <div class="filter-container">
+            <select id="userFilter">
+                <option value="">All Users</option>
+                <option value="user1">User 1</option>
+                <option value="user2">User 2</option>
+                <option value="user3">User 3</option>
+            </select>
+        </div>
+
+        <div class="chart-container">
+            <canvas id="salesChart"></canvas>
+        </div>
+    </div>
+
+    <script>
+        // Your Chart.js script here
+    </script>
+</body>
+</html>
