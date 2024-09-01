@@ -70,10 +70,6 @@ async def get_details_enrichment(
     # For initial rendering of the chart
     df = pd.DataFrame([record.__dict__ for record in res])
 
-    # df = df.dropna(subset=["sales", "statistical_forecast", "final_forecast", "benchmark_forecast"])
-
-    df_tmp = df[["demand_forecasting_unit", "date", "sales", "statistical_forecast", "final_forecast", "benchmark_forecast"]]
-
     df_grouped = df.groupby(["date"], as_index=False).agg(
         sales=("sales", "sum"),
         statistical_forecast=("statistical_forecast", "sum"),
@@ -101,3 +97,31 @@ async def get_details_enrichment(
             "dfu_list": dfu_list
         }
     )
+
+
+@app.get("/api/get_single_dfu")
+async def get_single_dfu(
+        session_id: str = Query(...),
+        dfu: str = Query(...),
+        db: Session = Depends(get_db)
+):
+
+    # TODO: handle "ALL DFUs"
+    res = db.query(models.SalesAndForecastData).filter(
+        models.SalesAndForecastData.session_id == session_id,
+        models.SalesAndForecastData.demand_forecasting_unit == dfu
+    ).all()
+
+    df = pd.DataFrame([record.__dict__ for record in res])
+
+    chart_data_new = json.dumps(
+        {
+            "date": pd.to_datetime(df["date"]).dt.strftime("%Y-%m-%d").tolist(),
+            "sales": df["sales"].tolist(),
+            "statistical_forecast": df["statistical_forecast"].replace(np.nan, None).tolist(),
+            "final_forecast": df["final_forecast"].replace(np.nan, None).tolist(),
+            "benchmark_forecast": df["benchmark_forecast"].replace(np.nan, None).tolist(),
+        }
+    )
+
+    return {"chart_data_new": chart_data_new}

@@ -37,10 +37,27 @@
 
         // Function to filter out null values and create data points
         function createDataPoints(dates, values) {
-            return dates.map((date, index) => ({
-                x: new Date(date),
-                y: values[index]
-            })).filter(point => point.y !== null);
+            if (!dates || !values || !Array.isArray(dates) || !Array.isArray(values)) {
+                console.error('Invalid data provided to createDataPoints:', { dates, values });
+                return [];
+            }
+            return dates.map((date, index) => {
+                if (date && values[index] !== undefined && values[index] !== null) {
+                    return {
+                        x: new Date(date),
+                        y: values[index]
+                    };
+                }
+                return null;
+            }).filter(point => point !== null);
+        }
+
+        // Function to format date as YYYY-MM-DD
+        function formatDate(date) {
+            const d = new Date(date);
+            return d.getFullYear() + '-' +
+                   String(d.getMonth() + 1).padStart(2, '0') + '-' +
+                   String(d.getDate()).padStart(2, '0');
         }
 
         // Create the chart
@@ -85,20 +102,32 @@
             },
             options: {
                 responsive: true,
-                title: {
-                    display: true,
-                    text: 'Sales and Forecasts Over Time'
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Sales and Forecasts Over Time'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            title: function(context) {
+                                return formatDate(context[0].parsed.x);
+                            }
+                        }
+                    }
                 },
                 scales: {
                     x: {
                         type: 'time',
                         time: {
-                            unit: 'month'
+                            unit: 'month',
+                            displayFormats: {
+                                day: 'yyyy-MM-dd'
+                            }
                         },
                         title: {
                             display: true,
                             text: 'Date'
-                        }
+                        },
                     },
                     y: {
                         beginAtZero: true,
@@ -115,16 +144,49 @@
         document.getElementById('dfuFilter').addEventListener('change', function() {
             const selectedDFU = this.value;
             console.log('Selected DFU:', selectedDFU);
-            // Here you would fetch new data and update the chart
+            // Placeholder for backend call
+            fetchDataForDFU(selectedDFU);
         });
 
+        async function fetchDataForDFU(dfu) {
+            const sessionId = '{{ session_id }}';
+            const url = `/api/get_single_dfu?dfu=${encodeURIComponent(dfu)}&session_id=${encodeURIComponent(sessionId)}`;
+            console.log('Fetching data from:', url);
+            try {
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                const chartDataUpdated = JSON.parse(data.chart_data);
+                updateChartData(chartDataUpdated);
+            } catch (error) {
+                console.error('Error fetching DFU data:', error);
+            }
+        }
+
         function updateChartData(newData) {
+            console.log('Updating chart with new data:', newData);  // Log the data being used to update
+
+            // Update the datasets
             salesChart.data.datasets[0].data = createDataPoints(newData.date, newData.sales);
             salesChart.data.datasets[1].data = createDataPoints(newData.date, newData.statistical_forecast);
             salesChart.data.datasets[2].data = createDataPoints(newData.date, newData.final_forecast);
             salesChart.data.datasets[3].data = createDataPoints(newData.date, newData.benchmark_forecast);
+
+            // Update the labels (x-axis)
+            salesChart.data.labels = newData.date;
+
+            // Update the scales
+            salesChart.options.scales.x.min = newData.date[0];
+            salesChart.options.scales.x.max = newData.date[newData.date.length - 1];
+
+            // Refresh the chart
             salesChart.update();
+
+            console.log('Chart update complete');  // Log when the update is done
         }
+
     </script>
 </body>
 </html>
