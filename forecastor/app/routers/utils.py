@@ -24,12 +24,14 @@ def moving_average_benchmark(df: pd.DataFrame, time_lag: int, window: int = 3):
     """
     Calculate the moving average benchmark forecast for each demand_forecasting_unit.
     """
+    df["date"] = pd.to_datetime(df["date"], format='%Y-%m-%d')
+    df = df.sort_values(["demand_forecasting_unit", "date"], ascending=True)
     df["benchmark_forecast"] = (
         df
-        .groupby(["demand_forecasting_unit", "session_id"])["sales"]
-        .rolling(window=window).mean()
-        .shift(time_lag)
-        .reset_index(level=["demand_forecasting_unit", "session_id"], drop=True)
+        .groupby("demand_forecasting_unit")["sales"]
+        .transform(lambda x: x.shift(time_lag).rolling(window=window, min_periods=1).mean())
     )
+    print("DEBUG")
+    print(df.head(30))
 
     return df

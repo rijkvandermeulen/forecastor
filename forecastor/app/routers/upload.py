@@ -35,10 +35,11 @@ async def process_input_data(time_lag: int = Form(...), file: UploadFile = File(
     df = pd.read_csv(file_object, delimiter=delimiter)
     df["date"] = pd.to_datetime(df["date"], format='%Y-%m-%d')
     session_id = str(uuid.uuid4())
-    df["session_id"] = session_id
 
     # Generate benchmark forecast
     df = moving_average_benchmark(df, time_lag)
+
+    df["session_id"] = session_id
 
     # Calculate the absolute errors
     df["absolute_error_stat_fcst"] = abs(df["sales"] - df["statistical_forecast"])

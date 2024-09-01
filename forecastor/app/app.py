@@ -1,4 +1,6 @@
 import pandas as pd
+import numpy as np
+import json
 from fastapi import FastAPI, Request, Depends, Query
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
@@ -64,6 +66,38 @@ async def get_details_enrichment(
         db: Session = Depends(get_db)
 ):
     res = db.query(models.SalesAndForecastData).filter(models.SalesAndForecastData.session_id == session_id).all()
+
+    # For initial rendering of the chart
     df = pd.DataFrame([record.__dict__ for record in res])
 
-    return templates.TemplateResponse("details_enrichment.html", {"request": request, "session_id": session_id})
+    # df = df.dropna(subset=["sales", "statistical_forecast", "final_forecast", "benchmark_forecast"])
+
+    df_tmp = df[["demand_forecasting_unit", "date", "sales", "statistical_forecast", "final_forecast", "benchmark_forecast"]]
+
+    df_grouped = df.groupby(["date"], as_index=False).agg(
+        sales=("sales", "sum"),
+        statistical_forecast=("statistical_forecast", "sum"),
+        final_forecast=("final_forecast", "sum"),
+        benchmark_forecast=("benchmark_forecast", "sum")
+    ).reset_index(drop=True)
+
+    chart_data = json.dumps(
+        {
+            "date": pd.to_datetime(df_grouped["date"]).dt.strftime("%Y-%m-%d").tolist(),
+            "sales": df_grouped["sales"].tolist(),
+            "statistical_forecast": df_grouped["statistical_forecast"].replace(np.nan, None).tolist(),
+            "final_forecast": df_grouped["final_forecast"].replace(np.nan, None).tolist(),
+            "benchmark_forecast": df_grouped["benchmark_forecast"].replace(np.nan, None).tolist(),
+        }
+    )
+
+    dfu_list = df["demand_forecasting_unit"].unique().tolist()
+
+    return templates.TemplateResponse(
+        "details_enrichment.html", {
+            "request": request,
+            "session_id": session_id,
+            "chart_data": chart_data,
+            "dfu_list": dfu_list
+        }
+    )
