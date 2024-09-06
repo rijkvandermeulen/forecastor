@@ -106,13 +106,25 @@ async def get_single_dfu(
         db: Session = Depends(get_db)
 ):
 
-    # TODO: handle "ALL DFUs"
-    res = db.query(models.SalesAndForecastData).filter(
-        models.SalesAndForecastData.session_id == session_id,
-        models.SalesAndForecastData.demand_forecasting_unit == dfu
-    ).all()
+    if not dfu:  # when the user selects "All DFUs" in the dropdown
+        res = db.query(models.SalesAndForecastData).filter(
+            models.SalesAndForecastData.session_id == session_id
+        ).all()
+    else:
+        res = db.query(models.SalesAndForecastData).filter(
+            models.SalesAndForecastData.session_id == session_id,
+            models.SalesAndForecastData.demand_forecasting_unit == dfu
+        ).all()
 
     df = pd.DataFrame([record.__dict__ for record in res])
+
+    if not dfu:
+        df = df.groupby(["date"], as_index=False).agg(
+            sales=("sales", "sum"),
+            statistical_forecast=("statistical_forecast", "sum"),
+            final_forecast=("final_forecast", "sum"),
+            benchmark_forecast=("benchmark_forecast", "sum")
+        ).reset_index(drop=True)
 
     chart_data_new = json.dumps(
         {

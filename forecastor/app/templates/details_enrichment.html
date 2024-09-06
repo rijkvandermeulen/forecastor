@@ -14,7 +14,29 @@
         <h1 class="page-title">Sales and Forecast Dashboard</h1>
 
         <div class="kpi-container">
-            <!-- KPI boxes here -->
+            <div class="kpi-box">
+                <div class="kpi-value">
+                    {{ 22 | round(2) }}%
+                </div>
+                <div class="kpi-label">Forecast Accuracy of your baseline forecast</div>
+            </div>
+            <div class="kpi-box">
+                <div class="kpi-value">
+                    {{ 22| round(2) }}%
+                </div>
+                <div class="kpi-label">Forecast Accuracy of your enriched forecast</div>
+            </div>
+            <div class="kpi-box">
+                <div class="kpi-value {% if 22 > 0 %}positive{% else %}negative{% endif %}">
+                    {{ 22| round(2) }}%pt
+                    {% if 22 > 0 %}
+                        <i class="fas fa-arrow-up"></i>
+                    {% else %}
+                        <i class="fas fa-arrow-down"></i>
+                    {% endif %}
+                </div>
+                <div class="kpi-label">Difference (value added)</div>
+            </div>
         </div>
 
         <div class="filter-container">
@@ -102,6 +124,10 @@
             },
             options: {
                 responsive: true,
+                maintainAspectRatio: true,
+                onResize: function(chart, size) {
+                    chart.resize();
+                },
                 plugins: {
                     title: {
                         display: true,
@@ -158,7 +184,7 @@
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 const data = await response.json();
-                const chartDataUpdated = JSON.parse(data.chart_data);
+                const chartDataUpdated = JSON.parse(data.chart_data_new);
                 updateChartData(chartDataUpdated);
             } catch (error) {
                 console.error('Error fetching DFU data:', error);
