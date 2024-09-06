@@ -10,6 +10,7 @@ from sqlalchemy.orm import Session
 from database import models
 from database.database import engine, get_db
 from routers import upload
+from routers.utils import get_forecast_kpis
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -36,25 +37,7 @@ async def get_high_level_summary_results(
     res = db.query(models.SalesAndForecastData).filter(models.SalesAndForecastData.session_id == session_id).all()
     df = pd.DataFrame([record.__dict__ for record in res])
 
-    # Calculate forecast accuracy of the various forecast versions
-    mae_perc_stat_fcst = min(1, (df["absolute_error_stat_fcst"].sum() / df["sales"].sum()))
-    fa_stat_fcst = (1 - mae_perc_stat_fcst) * 100
-    mae_perc_fin_fcst = min(1, (df["absolute_error_fin_fcst"].sum() / df["sales"].sum()))
-    fa_fin_fcst = (1 - mae_perc_fin_fcst) * 100
-    mae_perc_bm_fcst = min(1, (df["absolute_error_bm_fcst"].sum() / df["sales"].sum()))
-    fa_bm_fcst = (1 - mae_perc_bm_fcst) * 100
-
-    # Deltas
-    fva_fin_stat = fa_fin_fcst - fa_stat_fcst
-    fva_bm_stat = fa_stat_fcst - fa_bm_fcst
-
-    kpis = {
-        "fa_stat_fcst": fa_stat_fcst,
-        "fa_fin_fcst": fa_fin_fcst,
-        "fa_bm_fcst": fa_bm_fcst,
-        "fva_fin_stat": fva_fin_stat,
-        "fva_bm_stat": fva_bm_stat
-    }
+    kpis = get_forecast_kpis(df)
 
     return templates.TemplateResponse("results_summary.html", {"request": request, "kpis": kpis, "session_id": session_id})
 
@@ -87,6 +70,8 @@ async def get_details_enrichment(
         }
     )
 
+    kpis = get_forecast_kpis(df)
+
     dfu_list = df["demand_forecasting_unit"].unique().tolist()
 
     return templates.TemplateResponse(
@@ -94,7 +79,8 @@ async def get_details_enrichment(
             "request": request,
             "session_id": session_id,
             "chart_data": chart_data,
-            "dfu_list": dfu_list
+            "dfu_list": dfu_list,
+            "kpis": kpis
         }
     )
 
@@ -118,6 +104,8 @@ async def get_single_dfu(
 
     df = pd.DataFrame([record.__dict__ for record in res])
 
+    kpis = json.dumps(get_forecast_kpis(df))
+
     if not dfu:
         df = df.groupby(["date"], as_index=False).agg(
             sales=("sales", "sum"),
@@ -136,4 +124,4 @@ async def get_single_dfu(
         }
     )
 
-    return {"chart_data_new": chart_data_new}
+    return {"chart_data_new": chart_data_new, "kpis": kpis}

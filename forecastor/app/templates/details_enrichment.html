@@ -11,31 +11,26 @@
 </head>
 <body>
     <div class="container">
-        <h1 class="page-title">Sales and Forecast Dashboard</h1>
+        <h1 class="page-title">Detailed analysis</h1>
 
         <div class="kpi-container">
             <div class="kpi-box">
-                <div class="kpi-value">
-                    {{ 22 | round(2) }}%
+                <div id="fa_bm_fcst" class="kpi-value">
+                    {{ kpis['fa_bm_fcst'] | round(2) }}%
+                </div>
+                <div class="kpi-label">Forecast Accuracy of a simple moving average</div>
+            </div>
+            <div class="kpi-box">
+                <div id="fa_stat_fcst" class="kpi-value">
+                    {{ kpis['fa_stat_fcst'] | round(2) }}%
                 </div>
                 <div class="kpi-label">Forecast Accuracy of your baseline forecast</div>
             </div>
             <div class="kpi-box">
-                <div class="kpi-value">
-                    {{ 22| round(2) }}%
+                <div id="fa_fin_fcst" class="kpi-value">
+                    {{ kpis['fa_fin_fcst'] | round(2) }}%
                 </div>
                 <div class="kpi-label">Forecast Accuracy of your enriched forecast</div>
-            </div>
-            <div class="kpi-box">
-                <div class="kpi-value {% if 22 > 0 %}positive{% else %}negative{% endif %}">
-                    {{ 22| round(2) }}%pt
-                    {% if 22 > 0 %}
-                        <i class="fas fa-arrow-up"></i>
-                    {% else %}
-                        <i class="fas fa-arrow-down"></i>
-                    {% endif %}
-                </div>
-                <div class="kpi-label">Difference (value added)</div>
             </div>
         </div>
 
@@ -125,13 +120,25 @@
             options: {
                 responsive: true,
                 maintainAspectRatio: true,
-                onResize: function(chart, size) {
+                onResize: function(chart) {
                     chart.resize();
                 },
                 plugins: {
                     title: {
                         display: true,
-                        text: 'Sales and Forecasts Over Time'
+                        text: 'Sales and Forecasts Over Time',
+                        font: {
+                            size: 20
+                        }
+                    },
+                    legend: {
+                        display: true,
+                        position: 'right',
+                        labels: {
+                            font: {
+                                size: 14
+                            }
+                        }
                     },
                     tooltip: {
                         callbacks: {
@@ -148,18 +155,34 @@
                             unit: 'month',
                             displayFormats: {
                                 day: 'yyyy-MM-dd'
+                            },
+                        },
+                        ticks: {
+                            font: {
+                                size: 12
                             }
                         },
                         title: {
                             display: true,
-                            text: 'Date'
+                            text: 'Time period',
+                            font: {
+                                size: 16
+                            }
                         },
                     },
                     y: {
                         beginAtZero: true,
                         title: {
                             display: true,
-                            text: 'Value'
+                            text: 'Quantity',
+                            font: {
+                                size: 16
+                            }
+                        },
+                        ticks: {
+                            font: {
+                                size: 14
+                            }
                         }
                     }
                 }
@@ -178,21 +201,27 @@
             const sessionId = '{{ session_id }}';
             const url = `/api/get_single_dfu?dfu=${encodeURIComponent(dfu)}&session_id=${encodeURIComponent(sessionId)}`;
             console.log('Fetching data from:', url);
+
             try {
                 const response = await fetch(url);
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 const data = await response.json();
+                const kpiDataUpdated = JSON.parse(data.kpis);
                 const chartDataUpdated = JSON.parse(data.chart_data_new);
+
+                // Update the KPIs and chart
+                updateKPIs(kpiDataUpdated);
                 updateChartData(chartDataUpdated);
             } catch (error) {
                 console.error('Error fetching DFU data:', error);
             }
+
         }
 
         function updateChartData(newData) {
-            console.log('Updating chart with new data:', newData);  // Log the data being used to update
+            console.log('Updating chart with new data:', newData);
 
             // Update the datasets
             salesChart.data.datasets[0].data = createDataPoints(newData.date, newData.sales);
@@ -211,6 +240,14 @@
             salesChart.update();
 
             console.log('Chart update complete');  // Log when the update is done
+        }
+
+        function updateKPIs(newData) {
+            console.log('Updating KPIs with new data:', newData);
+            document.querySelector('#fa_bm_fcst').textContent = newData.fa_bm_fcst.toFixed(2) + '%';
+            document.querySelector('#fa_stat_fcst').textContent = newData.fa_stat_fcst.toFixed(2) + '%';
+            document.querySelector('#fa_fin_fcst').textContent = newData.fa_fin_fcst.toFixed(2) + '%';
+
         }
 
     </script>

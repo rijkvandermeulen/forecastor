@@ -1,5 +1,6 @@
 import csv
 import io
+from typing import Dict
 
 import pandas as pd
 
@@ -35,3 +36,28 @@ def moving_average_benchmark(df: pd.DataFrame, time_lag: int, window: int = 3):
     print(df.head(30))
 
     return df
+
+
+def get_forecast_kpis(df: pd.DataFrame) -> Dict[str, float]:
+    """
+    Calculate forecast accuracy metrics.
+    """
+    # Calculate forecast accuracy of the various forecast versions
+    mae_perc_stat_fcst = min(1, (df["absolute_error_stat_fcst"].sum() / df["sales"].sum()))
+    fa_stat_fcst = (1 - mae_perc_stat_fcst) * 100
+    mae_perc_fin_fcst = min(1, (df["absolute_error_fin_fcst"].sum() / df["sales"].sum()))
+    fa_fin_fcst = (1 - mae_perc_fin_fcst) * 100
+    mae_perc_bm_fcst = min(1, (df["absolute_error_bm_fcst"].sum() / df["sales"].sum()))
+    fa_bm_fcst = (1 - mae_perc_bm_fcst) * 100
+
+    # Deltas
+    fva_fin_stat = fa_fin_fcst - fa_stat_fcst
+    fva_bm_stat = fa_stat_fcst - fa_bm_fcst
+
+    return {
+        "fa_stat_fcst": fa_stat_fcst,
+        "fa_fin_fcst": fa_fin_fcst,
+        "fa_bm_fcst": fa_bm_fcst,
+        "fva_fin_stat": fva_fin_stat,
+        "fva_bm_stat": fva_bm_stat
+    }
