@@ -18,6 +18,38 @@
                 <i class="fas fa-arrow-right"></i> Go to detailed analysis
             </a>
             <br>
+            <h2 class="section-header">Performance of your forecast engine</h2>
+            <p class="section-description">
+                Comparing the forecast accuracy of your forecast engine with a simple moving average with window size 3
+            </p>
+            <div class="kpi-container">
+                <div class="kpi-box">
+                    <div class="kpi-value">
+                        {{ kpis['fa_bm_fcst'] | round(2) }}%
+                    </div>
+                    <div class="kpi-label">Forecast Accuracy of a simple moving average</div>
+                </div>
+                <div class="kpi-box">
+                    <div class="kpi-value">
+                        {{ kpis['fa_stat_fcst'] | round(2) }}%
+                    </div>
+                    <div class="kpi-label">Forecast Accuracy of your baseline forecast</div>
+                </div>
+                <div class="kpi-box">
+                    <div class="kpi-value {% if kpis['fva_bm_stat'] > 0 %}positive{% else %}negative{% endif %}">
+                        {{ kpis['fva_bm_stat'] | round(2) }}%pt
+                        {% if kpis['fva_bm_stat'] > 0 %}
+                            <i class="fas fa-arrow-up"></i>
+                        {% else %}
+                            <i class="fas fa-arrow-down"></i>
+                        {% endif %}
+                    </div>
+                    <div class="kpi-label">Difference (value added)</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="kpi-section">
             <h2 class="section-header">Performance of your enrichments</h2>
             <p class="section-description">
                 Comparing the forecast accuracy of your enriched forecast with the baseline forecast from your
@@ -40,38 +72,6 @@
                     <div class="kpi-value {% if kpis['fva_fin_stat'] > 0 %}positive{% else %}negative{% endif %}">
                         {{ kpis['fva_fin_stat'] | round(2) }}%pt
                         {% if kpis['fva_fin_stat'] > 0 %}
-                            <i class="fas fa-arrow-up"></i>
-                        {% else %}
-                            <i class="fas fa-arrow-down"></i>
-                        {% endif %}
-                    </div>
-                    <div class="kpi-label">Difference (value added)</div>
-                </div>
-            </div>
-        </div>
-
-        <div class="kpi-section">
-            <h2 class="section-header">Performance of your forecast engine</h2>
-            <p class="section-description">
-                Comparing the forecast accuracy of your forecast engine with a simple moving average with window size 3
-            </p>
-            <div class="kpi-container">
-                <div class="kpi-box">
-                    <div class="kpi-value">
-                        {{ kpis['fa_bm_fcst'] | round(2) }}%
-                    </div>
-                    <div class="kpi-label">Forecast Accuracy of a simple moving average</div>
-                </div>
-                <div class="kpi-box">
-                    <div class="kpi-value">
-                        {{ kpis['fa_stat_fcst'] | round(2) }}%
-                    </div>
-                    <div class="kpi-label">Forecast Accuracy of your baseline forecast</div>
-                </div>
-                <div class="kpi-box">
-                    <div class="kpi-value {% if kpis['fva_bm_stat'] > 0 %}positive{% else %}negative{% endif %}">
-                        {{ kpis['fva_bm_stat'] | round(2) }}%pt
-                        {% if kpis['fva_bm_stat'] > 0 %}
                             <i class="fas fa-arrow-up"></i>
                         {% else %}
                             <i class="fas fa-arrow-down"></i>

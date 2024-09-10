@@ -60,7 +60,7 @@ p {
 }
 
 .feature-text span {
-    font-size: 1rem;
+    font-size: 1.1rem;
     line-height: 1.4;
     display: inline-block;
     vertical-align: middle;
@@ -254,7 +254,7 @@ p {
     background-color: #1e1e1e;
     border-radius: 6px;
     padding: 1rem;
-    margin: 0.5rem;
+    margin: 0.5rem 0;
     overflow-x: auto;
 }
 
@@ -271,11 +271,23 @@ p {
     display: block;
     white-space: pre;
     margin: 0;
+    text-align: left;
 }
 
 .dataset-example .header { color: #569cd6; }
 .dataset-example .date { color: #ce9178; }
 .dataset-example .number { color: #b5cea8; }
+.dataset-example .sku { color: #4ec9b0; }
+
+.steps-list li {
+    padding-left: 0;
+}
+
+.steps-list .code-example {
+    margin-left: -1rem;
+    margin-right: -1rem;
+    border-radius: 0;
+}
 
 .form-group {
     margin-bottom: 1.5rem;

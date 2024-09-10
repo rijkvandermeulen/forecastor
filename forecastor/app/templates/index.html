@@ -19,11 +19,7 @@
                     <li>
                         <h3>Step 1: Upload your data in the following format</h3>
                         <div class="code-example">
-                            <pre><code class="dataset-example">
-                        date,actual_sales,forecast
-                        2023-01-01,1000,950
-                        2023-02-01,1200,1150
-                        2023-03-01,1100,1050</code></pre>
+                            <pre><code class="dataset-example"></code></pre>
                         </div>
                     </li>
                     <li>
@@ -95,6 +91,7 @@
 </html>
 
 <script>
+
 document.addEventListener('DOMContentLoaded', function() {
     const fileInput = document.getElementById('csv-file');
     const fileLabel = document.querySelector('.file-label');
@@ -114,31 +111,88 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
+
+// Dataset for the example
+const dataset = [
+    "sku,date,sales,stat_forecast,final_forecast",
+    "sku1,2023-01-01,1000,950,900",
+    "sku1,2023-02-01,1200,1150,1100",
+    "sku2,2023-01-01,1100,1050,1235"
+];
 document.addEventListener('DOMContentLoaded', function() {
     const codeElement = document.querySelector('.dataset-example');
-    const text = codeElement.textContent;
+
+    // Initialize the code element with an empty string
     codeElement.textContent = '';
-    let index = 0;
+    let lineIndex = 0; // Track the current line
+    let charIndex = 0; // Track the current character
 
     function typeText() {
-        if (index < text.length) {
-            codeElement.textContent += text.charAt(index);
-            index++;
-            setTimeout(typeText, 30);
+        if (lineIndex < dataset.length) {
+            const currentLine = dataset[lineIndex];
+
+            // If we haven't typed all characters in the current line
+            if (charIndex < currentLine.length) {
+                codeElement.innerHTML += currentLine[charIndex]; // Add the character to the output
+                charIndex++;
+                setTimeout(typeText, 30); // Call typeText again for the next character
+            } else {
+                // Move to the next line after typing the current line
+                codeElement.innerHTML += '<br>'; // Add a line break
+                lineIndex++;
+                charIndex = 0; // Reset character index for the next line
+                setTimeout(typeText, 300); // Delay before starting the next line
+            }
         } else {
-            highlightSyntax();
+            highlightSyntax(); // Call highlightSyntax after typing is done
         }
     }
 
     function highlightSyntax() {
-        let html = codeElement.innerHTML;
-        html = html.replace(/(date|actual_sales|forecast)/g, '<span class="header">$1</span>');
-        html = html.replace(/(\d{4}-\d{2}-\d{2})/g, '<span class="date">$1</span>');
-        html = html.replace(/(\d+)/g, '<span class="number">$1</span>');
+        let html = ''; // Initialize an empty string to build the new HTML
+
+        // Loop through each line to apply highlighting
+        for (let i = 0; i < dataset.length; i++) {
+            const columns = dataset[i].split(',');
+
+            for (let j = 0; j < columns.length; j++) {
+                let value = columns[j].trim(); // Trim whitespace
+
+                // Apply highlighting based on the row and column index
+                if (i === 0) {
+                    // Header row
+                    html += `<span class="header">${value}</span>`;
+                } else {
+                    // Data rows
+                    if (j === 0) {
+                        // Column 1: SKU
+                        html += `<span class="sku">${value}</span>`;
+                    } else if (j === 1) {
+                        // Column 2: Date
+                        html += `<span class="date">${value}</span>`;
+                    } else {
+                        // All other columns: sales and forecasts
+                        html += `<span class="number">${value}</span>`;
+                    }
+                }
+
+                // Add a comma after each value except for the last one in the row
+                if (j < columns.length - 1) {
+                    html += ', ';
+                }
+            }
+
+            // Add a line break after each row except the last one
+            if (i < dataset.length - 1) {
+                html += '<br>';
+            }
+        }
+
+        // Update the HTML with highlighted content
         codeElement.innerHTML = html;
     }
 
-    typeText();
+    typeText(); // Start the typing effect
 });
 
 </script>
