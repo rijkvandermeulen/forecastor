@@ -72,7 +72,7 @@ async def get_details_enrichment(
 
     kpis = get_forecast_kpis(df)
 
-    dfu_list = df["demand_forecasting_unit"].unique().tolist()
+    dfu_list = df["sku"].unique().tolist()
 
     return templates.TemplateResponse(
         "details_enrichment.html", {
@@ -99,7 +99,7 @@ async def get_single_dfu(
     else:
         res = db.query(models.SalesAndForecastData).filter(
             models.SalesAndForecastData.session_id == session_id,
-            models.SalesAndForecastData.demand_forecasting_unit == dfu
+            models.SalesAndForecastData.sku == dfu
         ).all()
 
     df = pd.DataFrame([record.__dict__ for record in res])

@@ -26,10 +26,10 @@ def moving_average_benchmark(df: pd.DataFrame, time_lag: int, window: int = 3):
     Calculate the moving average benchmark forecast for each demand_forecasting_unit.
     """
     df["date"] = pd.to_datetime(df["date"], format='%Y-%m-%d')
-    df = df.sort_values(["demand_forecasting_unit", "date"], ascending=True)
+    df = df.sort_values(["sku", "date"], ascending=True)
     df["benchmark_forecast"] = (
         df
-        .groupby("demand_forecasting_unit")["sales"]
+        .groupby("sku")["sales"]
         .transform(lambda x: x.shift(time_lag).rolling(window=window, min_periods=1).mean())
     )
     print("DEBUG")

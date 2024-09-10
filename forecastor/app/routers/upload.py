@@ -33,7 +33,7 @@ async def process_input_data(time_lag: int = Form(...), file: UploadFile = File(
     assert delimiter is not None
 
     df = pd.read_csv(file_object, delimiter=delimiter)
-    df["date"] = pd.to_datetime(df["date"], format='%Y-%m-%d')
+    df["date"] = pd.to_datetime(df["date"])
     session_id = str(uuid.uuid4())
 
     # Generate benchmark forecast

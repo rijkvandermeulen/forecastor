@@ -8,7 +8,7 @@ class SalesAndForecastData(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     session_id = Column(String, index=True)
-    demand_forecasting_unit = Column(String, index=True)
+    sku = Column(String, index=True)
     date = Column(Date)
     sales = Column(Float)
     statistical_forecast = Column(Float)
