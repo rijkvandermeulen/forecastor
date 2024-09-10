@@ -12,41 +12,83 @@
         <header>
             <h1 class="page-title"> How good is your forecast?</h1>
         </header>
-        <div class="feature">
-        <div class="feature-icon">
-            <i class="fa-solid fa-laptop-code"></i>
-        </div>
-        <div class="feature-text">
-            <span>Assess the quality of your (statistical) forecast engine</span>
-        </div>
-    </div>
-    <div class="feature">
-        <div class="feature-icon">
-            <i class="fa-solid fa-fingerprint"></i>
-        </div>
-        <div class="feature-text">
-            <span>Assess the quality of your enrichment process</span>
-        </div>
-    </div>
-        <div class="upload-section">
-            <h2>Get started!</h2>
-            <p>Upload a CSV file containing your sales data and forecast.</p>
-            <form id="upload-form" method="post" action="/uploadfile/" enctype="multipart/form-data">
-                <div class="form-group">
-                    <label for="time-lag" class="time-lag-label">
-                        Time lag (in months):
-                        <span class="info-icon" title="Time lag in demand forecasting refers to the delay between the period for which a forecast is made and the actual data used to generate that forecast. E.g., a time lag of 3 months means the forecast for September 2023 is based on actual sales data available only up to June 2023.">
-                            &#9432;
-                        </span>
-                    </label>
-                    <input type="number" id="time-lag" name="time_lag" class="time-lag-input" min="0" value="3" required>
-                </div>
-                <input type="file" id="csv-file" name="file" class="file-input" accept=".csv" required>
-                <label for="csv-file" class="file-label">
-                    <i class="fas fa-file-upload"></i> <span id="file-text">Choose File</span>
-                </label>
-                <button type="submit" id="upload-button" class="upload-button" style="display: none;">Upload</button>
-            </form>
+        <div class="two-column-container">
+            <div class="how-it-works-section">
+                <h2>How it works</h2>
+                <ol class="steps-list">
+                    <li>
+                        <h3>Step 1: Upload your data in the following format</h3>
+                        <div class="code-example">
+                            <pre><code class="dataset-example">
+                        date,actual_sales,forecast
+                        2023-01-01,1000,950
+                        2023-02-01,1200,1150
+                        2023-03-01,1100,1050</code></pre>
+                        </div>
+                    </li>
+                    <li>
+                        <h3>Step 2: Analyze the results</h3>
+                        <div class="feature">
+                            <div class="feature-icon">
+                                <i class="fa-solid fa-laptop-code"></i>
+                            </div>
+                            <div class="feature-text">
+                                <span>
+                                    Assess the quality of your (statistical) forecast engine. We compare the forecast
+                                    accuracy of your forecast engine with a simple moving average.
+                                </span>
+                            </div>
+                        </div>
+                        <div class="feature">
+                            <div class="feature-icon">
+                                <i class="fa-solid fa-fingerprint"></i>
+                            </div>
+                            <div class="feature-text">
+                                <span>
+                                    Assess the quality of your enrichment process. We compare the forecast accuracy of
+                                    your enriched forecast with the baseline forecast from your forecast engine.
+                                </span>
+                            </div>
+                        </div>
+                    </li>
+                </ol>
+            </div>
+
+            <div class="upload-section">
+                <h2>Get started!</h2>
+                <form id="upload-form" method="post" action="/uploadfile/" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="time-series-frequency" class="input-label">
+                            Time series frequency:
+                            <span class="info-icon" title="Select the frequency of your time series data.">&#9432;</span>
+                        </label>
+                        <select id="time-series-frequency" name="frequency" class="input-field" required>
+                            <option value="monthly">Monthly</option>
+                            <option value="weekly">Weekly</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="time-lag" class="input-label">
+                            Time lag:
+                            <span class="info-icon" title="Time lag in demand forecasting refers to the delay between the period for which a forecast is made and the actual data used to generate that forecast. E.g., a time lag of 3 months means the forecast for September 2023 is based on actual sales data available only up to June 2023.">&#9432;</span>
+                        </label>
+                        <input type="number" id="time-lag" name="time_lag" class="input-field" min="0" value="3" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="csv-file" class="input-label">
+                            Upload CSV file:
+                            <span class="info-icon" title="Upload a CSV file containing your sales data and forecast.">&#9432;</span>
+                        </label>
+                        <input type="file" id="csv-file" name="file" class="file-input" accept=".csv" required>
+                        <label for="csv-file" class="file-label">
+                            <i class="fas fa-file-upload"></i> <span id="file-text">Choose File</span>
+                        </label>
+                    </div>
+                    <button type="submit" id="analyze-button" class="analyze-button" style="display: none;">
+                        <i class="fas fa-rocket"></i> Analyze!
+                    </button>
+                </form>
+            </div>
         </div>
     </div>
 </body>
@@ -57,7 +99,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const fileInput = document.getElementById('csv-file');
     const fileLabel = document.querySelector('.file-label');
     const fileText = document.getElementById('file-text');
-    const uploadButton = document.getElementById('upload-button');
+    const uploadButton = document.getElementById('analyze-button');
 
     fileInput.addEventListener('change', function(e) {
         if (fileInput.files.length > 0) {
@@ -71,4 +113,32 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
+document.addEventListener('DOMContentLoaded', function() {
+    const codeElement = document.querySelector('.dataset-example');
+    const text = codeElement.textContent;
+    codeElement.textContent = '';
+    let index = 0;
+
+    function typeText() {
+        if (index < text.length) {
+            codeElement.textContent += text.charAt(index);
+            index++;
+            setTimeout(typeText, 30);
+        } else {
+            highlightSyntax();
+        }
+    }
+
+    function highlightSyntax() {
+        let html = codeElement.innerHTML;
+        html = html.replace(/(date|actual_sales|forecast)/g, '<span class="header">$1</span>');
+        html = html.replace(/(\d{4}-\d{2}-\d{2})/g, '<span class="date">$1</span>');
+        html = html.replace(/(\d+)/g, '<span class="number">$1</span>');
+        codeElement.innerHTML = html;
+    }
+
+    typeText();
+});
+
 </script>
