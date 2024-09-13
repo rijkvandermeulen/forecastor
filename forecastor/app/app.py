@@ -52,7 +52,7 @@ async def process_input_data(
 
     df = pd.read_csv(file_object, delimiter=delimiter)
 
-    validation_result = validate_input(df, time_lag)
+    validation_result = validate_input(df)
     # validation_result["is_valid"] = True
 
     if validation_result["is_valid"]:

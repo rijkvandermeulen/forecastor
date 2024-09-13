@@ -63,26 +63,58 @@ def get_forecast_kpis(df: pd.DataFrame) -> Dict[str, float]:
     }
 
 
-def validate_input(df: pd.DataFrame, time_lag: int) -> dict:
+def validate_input(df: pd.DataFrame) -> dict:
     """
     Perform input validation for the uploaded file.
     """
-    return {
-        "is_valid": False,
-        "error_message": "The uploaded file doesn't match the expected format. Please check your CSV file and try again.",
-        "error_details": "Detailed error information: Column 'Date' is missing in the CSV file."
-    }
+    error_message = ""
 
-    # if "date" not in df.columns:
-    #     raise ValueError("The file must contain a 'date' column.")
-    # if "sku" not in df.columns:
-    #     raise ValueError("The file must contain a 'sku' column.")
-    # if "sales" not in df.columns:
-    #     raise ValueError("The file must contain a 'sales' column.")
-    # if "statistical_forecast" not in df.columns:
-    #     raise ValueError("The file must contain a 'statistical_forecast' column.")
-    # if "final_forecast" not in df.columns:
-    #     raise ValueError("The file must contain a 'final_forecast' column.")
-    #
-    # if time_lag < 1:
-    #     raise ValueError("The time lag must be greater than or equal to 1.")
+    # Check if columns are present
+    expected_columns = ["date", "sku", "sales", "statistical_forecast", "final_forecast"]
+    for column in expected_columns:
+        if column not in df.columns:
+            error_message += f"The file must contain a '{column}' column. \n"
+
+    # Check that sku-date key is unique
+    if df.duplicated(subset=["date", "sku"]).any():
+        error_message += "The 'sku' and 'date' columns must form a unique key. \n"
+
+    # Check that the date column can be parsed as a date
+    if "date" in df.columns:
+        try:
+            pd.to_datetime(df["date"])
+            input_time_series = pd.DatetimeIndex(df["date"]).unique().sort_values()
+            start = input_time_series.min()
+            end = input_time_series.max()
+            frequency_time_series = pd.date_range(start=start, end=end, freq="MS")
+            if not input_time_series.equals(frequency_time_series):
+                error_message += (
+                    "The 'date' column must contain a continuous time series with monthly frequency ('YYYY-MM-DD'). \n"
+                )
+        except ValueError:
+            error_message += "The 'date' column must be in the format 'YYYY-MM-DD'. \n"
+
+    # Check that the sales, statistical_forecast, and final_forecast columns are numeric and non-negative
+    for column in ["sales", "statistical_forecast", "final_forecast"]:
+        if column not in df.columns:
+            pass
+        else:
+            if not pd.api.types.is_numeric_dtype(df[column]):
+                error_message += f"The '{column}' column must contain numeric values. \n"
+            else:
+                if (df[column] < 0).any():
+                    error_message += f"The '{column}' column must contain non-negative values. \n"
+
+    # Check that the sku and date columns are not empty
+    for column in ["sku", "date"]:
+        if df[column].isnull().any():
+            error_message += f"The '{column}' column must not contain missing values. \n"
+
+    if error_message:
+        return {
+            "is_valid": False,
+            "error_message": "The file is not valid. Please correct the following issues:",
+            "error_details": error_message
+        }
+    else:
+        return {"is_valid": True}
