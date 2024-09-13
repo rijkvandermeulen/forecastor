@@ -46,14 +46,17 @@ async def process_input_data(
     try:
         delimiter = check_delimiter(file_object)
     except ValueError as e:
-        raise HTTPException(400, detail=str(e))
+        return templates.TemplateResponse("validation_error.html", {
+            "request": request,
+            "error_message": "Could not detect the delimiter of your CSV file.",
+            "error_details": "Delimiter of the file could not be detected. Please check the file format."
+        })
 
     assert delimiter is not None
 
     df = pd.read_csv(file_object, delimiter=delimiter)
 
     validation_result = validate_input(df)
-    # validation_result["is_valid"] = True
 
     if validation_result["is_valid"]:
         df["date"] = pd.to_datetime(df["date"])

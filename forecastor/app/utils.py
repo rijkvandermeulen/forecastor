@@ -32,15 +32,13 @@ def moving_average_benchmark(df: pd.DataFrame, time_lag: int, window: int = 3):
         .groupby("sku")["sales"]
         .transform(lambda x: x.shift(time_lag).rolling(window=window, min_periods=1).mean())
     )
-    print("DEBUG")
-    print(df.head(30))
 
     return df
 
 
 def get_forecast_kpis(df: pd.DataFrame) -> Dict[str, float]:
     """
-    Calculate forecast accuracy metrics.
+    Calculate forecast accuracy metrics (MAE%-based).
     """
     # Calculate forecast accuracy of the various forecast versions
     mae_perc_stat_fcst = min(1, (df["absolute_error_stat_fcst"].sum() / df["sales"].sum()))
