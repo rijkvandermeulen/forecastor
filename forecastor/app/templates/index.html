@@ -195,4 +195,13 @@ document.addEventListener('DOMContentLoaded', function() {
     typeText(); // Start the typing effect
 });
 
+
+const form = document.getElementById('upload-form');
+const analyzeButton = document.getElementById('analyze-button');
+
+form.addEventListener('submit', function(event) {
+    analyzeButton.classList.add('loading');
+    analyzeButton.disabled = true;
+});
+
 </script>

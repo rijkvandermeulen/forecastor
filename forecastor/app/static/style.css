@@ -171,7 +171,7 @@ p {
 }
 
 .analyze-button {
-    display: none; /* Initially hidden, will be shown via JavaScript */
+    display: none; /* Initially hidden, will be shown data has been uploaded */
     padding: 0.75rem 1.5rem;
     background-color: #3C9BD9;
     color: white;
@@ -193,6 +193,16 @@ p {
 
 .analyze-button:hover {
     background-color: #2277AE;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+.analyze-button.loading i {
+  animation: pulse 1s ease-in-out infinite;
 }
 
 #file-text {
