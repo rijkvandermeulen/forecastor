@@ -61,3 +61,28 @@ def get_forecast_kpis(df: pd.DataFrame) -> Dict[str, float]:
         "fva_fin_stat": fva_fin_stat,
         "fva_bm_stat": fva_bm_stat
     }
+
+
+def validate_input(df: pd.DataFrame, time_lag: int) -> dict:
+    """
+    Perform input validation for the uploaded file.
+    """
+    return {
+        "is_valid": False,
+        "error_message": "The uploaded file doesn't match the expected format. Please check your CSV file and try again.",
+        "error_details": "Detailed error information: Column 'Date' is missing in the CSV file."
+    }
+
+    # if "date" not in df.columns:
+    #     raise ValueError("The file must contain a 'date' column.")
+    # if "sku" not in df.columns:
+    #     raise ValueError("The file must contain a 'sku' column.")
+    # if "sales" not in df.columns:
+    #     raise ValueError("The file must contain a 'sales' column.")
+    # if "statistical_forecast" not in df.columns:
+    #     raise ValueError("The file must contain a 'statistical_forecast' column.")
+    # if "final_forecast" not in df.columns:
+    #     raise ValueError("The file must contain a 'final_forecast' column.")
+    #
+    # if time_lag < 1:
+    #     raise ValueError("The time lag must be greater than or equal to 1.")

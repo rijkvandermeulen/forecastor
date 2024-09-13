@@ -528,3 +528,99 @@ canvas {
     max-width: 100%;
     height: auto;
 }
+
+/* New styles for error page */
+.error-section {
+    background-color: #2a2a2a;
+    border-radius: 8px;
+    padding: 2rem;
+    margin-top: 2rem;
+}
+
+.error-section h2 {
+    color: #ff6b6b;
+    margin-bottom: 1.5rem;
+}
+
+.error-section h2 i {
+    margin-right: 10px;
+}
+
+#error-message {
+    font-size: 1.1rem;
+    color: #e0e0e0;
+    margin-bottom: 2rem;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.button {
+    display: inline-block;
+    padding: 10px 20px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+}
+
+.primary-button {
+    background-color: #3C9BD9;
+    color: #ffffff;
+}
+
+.primary-button:hover {
+    background-color: #2980b9;
+}
+
+.secondary-button {
+    background-color: #4a4a4a;
+    color: #ffffff;
+}
+
+.secondary-button:hover {
+    background-color: #3a3a3a;
+}
+
+/* Validation errors */
+.error-section {
+    background-color: #2a2a2a;
+    border-radius: 8px;
+    padding: 2rem;
+    margin-top: 2rem;
+    text-align: center;
+}
+
+.error-section h2 {
+    color: #ff6b6b;
+    margin-bottom: 1.5rem;
+}
+
+#error-message {
+    font-size: 1.1rem;
+    color: #e0e0e0;
+    margin-bottom: 2rem;
+}
+
+#error-details {
+    background-color: #222;
+    border-radius: 5px;
+    padding: 1rem;
+    margin: 1rem 0 2rem;
+    text-align: left;
+}
+
+#error-details h3 {
+    color: #3C9BD9;
+    margin-bottom: 0.5rem;
+}
+
+#error-details pre {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    color: #e0e0e0;
+    font-size: 0.9rem;
+}
