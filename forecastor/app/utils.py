@@ -6,6 +6,9 @@ import pandas as pd
 
 
 def check_delimiter(file_object: io.StringIO):
+    """
+    Check the delimiter of the uploaded CSV file.
+    """
 
     file_object.seek(0)
     sample = file_object.read(4096)
