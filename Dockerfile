@@ -8,11 +8,11 @@ RUN apt-get update \
     # Clean up the apt cache to reduce image size
     && rm -rf /var/lib/apt/lists/*
 
+
 COPY ./forecastor/requirements.txt /tmp
 RUN pip install -r /tmp/requirements.txt
 
 WORKDIR /app
-#COPY ./app /app
 COPY ./forecastor/app /app
 
 EXPOSE 8000
