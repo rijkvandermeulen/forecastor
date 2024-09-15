@@ -8,5 +8,3 @@ This myth resonates with the essence of our app. In the world of supply chain de
 final forecast often consists of two parts: a statistical or machine learning baseline and manual 
 enrichments. Just like Castor and Pollux, both elements need to work in harmony to achieve effective 
 demand planning. Yes, it's a bit cheesy, but hey, who doesn't love a good mythological reference?
-
-## Where can you use the app for?
