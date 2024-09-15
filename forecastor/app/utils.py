@@ -108,6 +108,14 @@ def validate_input(df: pd.DataFrame) -> dict:
         if df[column].isnull().any():
             error_message += f"The '{column}' column must not contain missing values. \n"
 
+    # Check on data size (considering small deployment server)
+    unique_skus = df["sku"].nunique()
+    if unique_skus > 200:
+        error_message += f"Your file contains {unique_skus} unique SKUs. The current limit is 200. \n"
+    rows = df.shape[0]
+    if rows > 10000:
+        error_message += f"Your file contains {rows} rows. The current limit is 10,000. \n"
+
     if error_message:
         return {
             "is_valid": False,
