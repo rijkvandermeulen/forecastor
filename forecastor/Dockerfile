@@ -8,7 +8,7 @@ RUN apt-get update \
     # Clean up the apt cache to reduce image size
     && rm -rf /var/lib/apt/lists/*
 
-COPY requirements.txt /tmp
+COPY ./forecastor/requirements.txt /tmp
 RUN pip install -r /tmp/requirements.txt
 
 WORKDIR /app
