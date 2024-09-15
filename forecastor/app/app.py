@@ -1,5 +1,6 @@
 import io
 import uuid
+from contextlib import asynccontextmanager
 
 import pandas as pd
 import numpy as np
@@ -8,8 +9,10 @@ from fastapi import FastAPI, Request, Query, Depends, File, UploadFile, HTTPExce
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
+
 from sqlalchemy.orm import Session
 
+from scheduler import scheduler
 from utils import get_forecast_kpis, check_delimiter, moving_average_benchmark, validate_input
 
 from database import models
@@ -19,7 +22,15 @@ from database.models import Parameters
 
 models.Base.metadata.create_all(bind=engine)
 
-app = FastAPI()
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    scheduler.start()
+    yield
+    scheduler.shutdown()
+
+app = FastAPI(lifespan=lifespan)
+
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
